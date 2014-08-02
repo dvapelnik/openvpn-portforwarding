@@ -8,10 +8,8 @@
 # $5 - Client NAT port
 
 function portForwardAddRule {
-    /sbin/iptables -t nat -A PREROUTING -d $1 -p tcp --dport $2 -j DNAT --to-dest $4:$5
-    /sbin/iptables -t nat -A POSTROUTING -d $4 -p tcp --dport $5 -j SNAT --to-source $3
-#    logger "/sbin/iptables -t nat -A PREROUTING -d $1 -p tcp --dport $2 -j DNAT --to-dest $4:$5"
-#    logger "/sbin/iptables -t nat -A POSTROUTING -d $4 -p tcp --dport $5 -j SNAT --to-source $3"
+    /sbin/iptables -t nat -A PREROUTING -d "$1" -p tcp --dport "$2" -j DNAT --to-dest "$4":"$5"
+    /sbin/iptables -t nat -A POSTROUTING -d "$4" -p tcp --dport "$5" -j SNAT --to-source "$3"
 }
 
 # Arguments
@@ -22,10 +20,8 @@ function portForwardAddRule {
 # $5 - Client NAT port
 
 function portForwardDeleteRule {
-#    logger "/sbin/iptables -t nat -D PREROUTING -d $1 -p tcp --dport $2 -j DNAT --to-dest $4:$5"
-#    logger "/sbin/iptables -t nat -D POSTROUTING -d $4 -p tcp --dport $5 -j SNAT --to-source $3"
-    /sbin/iptables -t nat -D PREROUTING -d $1 -p tcp --dport $2 -j DNAT --to-dest $4:$5
-    /sbin/iptables -t nat -D POSTROUTING -d $4 -p tcp --dport $5 -j SNAT --to-source $3
+    /sbin/iptables -t nat -D PREROUTING -d "$1" -p tcp --dport "$2" -j DNAT --to-dest "$4":"$5"
+    /sbin/iptables -t nat -D POSTROUTING -d "$4" -p tcp --dport "$5" -j SNAT --to-source "$3"
 }
 
 case "$ifconfig_pool_remote_ip" in
@@ -36,7 +32,5 @@ case "$ifconfig_pool_remote_ip" in
     *);;
 esac
 
-port_local="65022"
-port_remote="22"
-ifconfig_local="10.8.0.1"
-ifconfig_pool_remote_ip="10.8.0.5"
+mainif="eth0"
+serverip=$(/sbin/ifconfig $mainif 2> /dev/null | /bin/awk '/inet addr:/ {print $2}' | /bin/sed 's/addr://')
